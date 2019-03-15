@@ -1,4 +1,7 @@
 <resources>
     <string name="app_name">Glovo Test</string>
-    <string name="action_settings">Settings</string>
+
+    <!--    Permissions    -->
+    <string name="permission_rationale_location_title">Location permission</string>
+    <string name="permission_rationale_location_body">Please, consider giving access to your location for better user experience</string>
 </resources>
