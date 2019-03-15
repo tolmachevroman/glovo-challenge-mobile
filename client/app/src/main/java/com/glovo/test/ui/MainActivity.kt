@@ -1,7 +1,8 @@
-package com.glovo.test
+package com.glovo.test.ui
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import com.glovo.test.R
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
