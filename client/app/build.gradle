@@ -16,10 +16,10 @@ android {
     buildTypes {
         debug {
             //server running on a machine in the local network, to test from device, change to your local address
-            buildConfigField 'String', 'URL', '"http://192.168.1.145:3000/"'
+            buildConfigField 'String', 'URL', '"http://192.168.1.145:3000/api/"'
         }
         release {
-            buildConfigField 'String', 'URL', '"http://some-server.com/"'
+            buildConfigField 'String', 'URL', '"http://some-server.com/api/"'
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
@@ -43,10 +43,13 @@ buildscript {
     ext.play_services_version = '16.1.0'
     ext.dagger_version = '2.15'
     ext.retrofit_version = '2.5.0'
+    ext.retrofit_rx_version = '2.5.0'
     ext.okhttp_version = '3.14.0'
     ext.okio_version = '2.2.2'
     ext.gson_version = '2.8.5'
     ext.moshi_version = '2.5.0'
+    ext.rx_kotlin_version = '2.3.0'
+    ext.rx_android_version = '2.0.2'
 
     ext.junit_version = '4.12'
     ext.core_testing_version = '1.0.0'
@@ -76,6 +79,10 @@ dependencies {
     kapt "com.google.dagger:dagger-compiler:$dagger_version"
     kapt "com.google.dagger:dagger-android-processor:$dagger_version"
 
+    //RxKotlin
+    implementation "io.reactivex.rxjava2:rxkotlin:$rx_kotlin_version"
+    implementation "io.reactivex.rxjava2:rxandroid:$rx_android_version"
+
     //Retrofit
     implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
     implementation "com.squareup.okhttp3:okhttp:$okhttp_version"
@@ -83,6 +90,7 @@ dependencies {
     implementation "com.squareup.okio:okio:$okio_version"
     implementation "com.google.code.gson:gson:$gson_version"
     implementation "com.squareup.retrofit2:converter-moshi:$moshi_version"
+    implementation "com.squareup.retrofit2:adapter-rxjava2:$retrofit_rx_version"
 
     //Tests
     testImplementation "junit:junit:$junit_version"
