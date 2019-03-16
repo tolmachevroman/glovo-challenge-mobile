@@ -1,6 +1,7 @@
 package com.glovo.test.di.modules
 
 import com.glovo.test.ui.MainActivity
+import com.glovo.test.ui.SelectCityFragment
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
 
@@ -9,4 +10,7 @@ abstract class BuildersModule {
 
     @ContributesAndroidInjector
     abstract fun contributeMainActivity(): MainActivity
+
+    @ContributesAndroidInjector
+    abstract fun contributeSelectCityFragment(): SelectCityFragment
 }
