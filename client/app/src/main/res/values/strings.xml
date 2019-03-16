@@ -6,6 +6,7 @@
 
     <!--    Cities by country    -->
     <string name="please_select_your_city">Please, select your city:</string>
+    <string name="select_city_menu">Select city</string>
 
     <!--    Permissions    -->
     <string name="permission_rationale_location_title">Location permission</string>

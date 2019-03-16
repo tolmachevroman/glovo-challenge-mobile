@@ -3,12 +3,15 @@ package com.glovo.test.ui
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Criteria
 import android.location.Location
 import android.location.LocationManager
 import android.os.Bundle
 import android.os.Handler
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -89,20 +92,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                 }
             })
 
-            countriesResponse.observe(this@MainActivity, Observer { response ->
-                when (response.status) {
-                    Response.Status.SUCCESS -> {
-                        println("Successfully got countries: ${response.data}")
-                    }
-                    Response.Status.ERROR -> {
-
-                    }
-                    Response.Status.LOADING -> {
-
-                    }
-                }
-            })
-
             cityByCodeResponse.observe(this@MainActivity, Observer { response ->
                 when (response.status) {
                     Response.Status.SUCCESS -> {
@@ -118,9 +107,21 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             })
         }
 
-        (supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?)?.also { mapFragment ->
+        (supportFragmentManager.findFragmentById(R.id.mapFragment) as SupportMapFragment?)?.also { mapFragment ->
             mapFragment.getMapAsync(this)
         }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.main, menu)
+        return super.onCreateOptionsMenu(menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+        when (item?.itemId) {
+            R.id.select_city -> showSelectCityFragment()
+        }
+        return super.onOptionsItemSelected(item)
     }
 
     override fun onMapReady(map: GoogleMap?) {
@@ -141,7 +142,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             // Enable the my location layer if the permission has been granted.
             enableMyLocation()
         } else {
-            // TODO ask to enter the city manually
+            showSelectCityFragment()
         }
     }
 
@@ -175,7 +176,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private fun zoomToLocation(location: Location) {
         val coordinate = LatLng(location.latitude, location.longitude)
-        googleMap?.animateCamera(CameraUpdateFactory.newLatLngZoom(coordinate, 14f))
+        googleMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(coordinate, 14f))
     }
 
     private fun drawPolygonOptions(polygonOptionsAvailable: List<PolygonOptions>) {
@@ -189,7 +190,23 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     private fun showCityInformation(city: City) {
-        cityInformation.visibility = View.VISIBLE
-        cityInformation.text = getString(R.string.city_information, city.name, city.countryCode, city.timeZone, city.languageCode, city.currency)
+        cityInformationTextView.visibility = View.VISIBLE
+        cityInformationTextView.text = getString(
+            R.string.city_information,
+            city.name,
+            city.countryCode,
+            city.timeZone,
+            city.languageCode,
+            city.currency
+        )
+    }
+
+    private fun showSelectCityFragment() {
+        val selectCityFragment = SelectCityFragment()
+        selectCityFragment.show(supportFragmentManager, "selectCity")
+    }
+
+    fun onCitySelected(cityCode: String) {
+        println("City selected was $cityCode")
     }
 }

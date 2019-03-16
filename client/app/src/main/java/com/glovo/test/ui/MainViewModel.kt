@@ -27,7 +27,6 @@ import javax.inject.Inject
 class MainViewModel @Inject constructor(
     private val context: Context,
     private val citiesRepository: CitiesRepository,
-    private val countriesRepository: CountriesRepository,
     @IoThreads private val ioScheduler: Scheduler,
     @Callback private val callbackScheduler: Scheduler
 ) : ViewModel() {
@@ -40,7 +39,6 @@ class MainViewModel @Inject constructor(
 
     val citiesResponse: MutableLiveData<Response<CityWithPolygonOptions>> = MutableLiveData()
     val cityByCodeResponse: MutableLiveData<Response<City>> = MutableLiveData()
-    val countriesResponse: MutableLiveData<Response<List<Country>>> = MutableLiveData()
 
     fun getCities() {
         citiesRepository.getCities()
@@ -96,17 +94,6 @@ class MainViewModel @Inject constructor(
             code = city.code,
             polygonOptionsAvailable = polygonOptionsAvailable
         )
-    }
-
-    fun getCountries() {
-        countriesRepository.getCountries()
-            .subscribeOn(ioScheduler)
-            .observeOn(callbackScheduler)
-            .subscribeBy(onSuccess = { countries ->
-                countriesResponse.value = Response.success(countries)
-            }, onError = {
-                countriesResponse.value = Response.error(data = null, error = it)
-            }).addTo(disposable)
     }
 
     override fun onCleared() {
