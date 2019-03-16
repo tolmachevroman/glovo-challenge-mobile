@@ -50,7 +50,9 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             citiesResponse.observe(this@MainActivity, Observer { response ->
                 when (response.status) {
                     Response.Status.SUCCESS -> {
-                        println("Successfully got cities: ${response.data}")
+                        response.data?.forEach { cityWithPolygons ->
+                            println("City ${cityWithPolygons.name} has ${cityWithPolygons.polygons.size} polygons")
+                        }
                     }
                     Response.Status.ERROR -> {
 

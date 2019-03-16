@@ -9,6 +9,9 @@ import com.glovo.test.data.repositories.CountriesRepository
 import com.glovo.test.di.interactors.Response
 import com.glovo.test.di.modules.Callback
 import com.glovo.test.di.modules.IoThreads
+import com.google.android.gms.maps.model.LatLng
+import com.google.maps.android.PolyUtil
+import io.reactivex.Observable
 import io.reactivex.Scheduler
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.addTo
@@ -24,16 +27,32 @@ class MainViewModel @Inject constructor(
 
     private val disposable: CompositeDisposable = CompositeDisposable()
 
-    val citiesResponse: MutableLiveData<Response<List<City>>> = MutableLiveData()
+    val citiesResponse: MutableLiveData<Response<List<CityWithPolygons>>> = MutableLiveData()
 
     val countriesResponse: MutableLiveData<Response<List<Country>>> = MutableLiveData()
 
     fun getCities() {
         citiesRepository.getCities()
+            .flatMap { cities ->
+                Observable.fromIterable(cities)
+                    .map { city ->
+                        val polygons = mutableListOf<LatLng>()
+                        city.workingArea.forEach { area ->
+                            polygons.addAll(PolyUtil.decode(area))
+                        }
+                        CityWithPolygons(
+                            name = city.name,
+                            code = city.code,
+                            polygons = polygons
+                        )
+                    }
+                    .toList()
+                    .subscribeOn(ioScheduler)
+            }
             .subscribeOn(ioScheduler)
             .observeOn(callbackScheduler)
-            .subscribeBy(onSuccess = { cities ->
-                citiesResponse.value = Response.success(cities)
+            .subscribeBy(onSuccess = { citiesWithPolygons ->
+                citiesResponse.value = Response.success(citiesWithPolygons)
             }, onError = {
                 citiesResponse.value = Response.error(data = null, error = it)
             }).addTo(disposable)
@@ -53,4 +72,6 @@ class MainViewModel @Inject constructor(
     override fun onCleared() {
         disposable.clear()
     }
+
+    data class CityWithPolygons(val name: String, val code: String, val polygons: List<LatLng>)
 }
