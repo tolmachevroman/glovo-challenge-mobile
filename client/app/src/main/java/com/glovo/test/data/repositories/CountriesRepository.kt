@@ -5,9 +5,9 @@ import com.glovo.test.di.interactors.WebService
 import io.reactivex.Single
 import javax.inject.Inject
 
-class CountriesRepository @Inject constructor(private val webService: WebService) : Repository<Country> {
+class CountriesRepository @Inject constructor(private val webService: WebService) {
 
-    override fun getItems(): Single<List<Country>> {
+    fun getCountries(): Single<List<Country>> {
         return webService.getCountries()
     }
 }

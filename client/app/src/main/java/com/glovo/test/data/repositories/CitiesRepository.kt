@@ -6,9 +6,9 @@ import io.reactivex.Observable
 import io.reactivex.Single
 import javax.inject.Inject
 
-class CitiesRepository @Inject constructor(private val webService: WebService) : Repository<City> {
+class CitiesRepository @Inject constructor(private val webService: WebService) {
 
-    override fun getItems(): Single<List<City>> {
+    fun getCities(): Single<List<City>> {
         return webService.getCities()
     }
 }
