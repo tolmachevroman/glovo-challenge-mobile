@@ -11,4 +11,8 @@ class CitiesRepository @Inject constructor(private val webService: WebService) {
     fun getCities(): Single<List<City>> {
         return webService.getCities()
     }
+
+    fun getCityByCode(cityCode: String): Single<City> {
+        return webService.getCityByCode(cityCode)
+    }
 }
