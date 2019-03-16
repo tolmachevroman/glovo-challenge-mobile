@@ -4,7 +4,13 @@
     <!--    City information    -->
     <string name="city_information">%s, %s, timezone: %s, language code: %s, currency: %s</string>
 
+    <!--    Cities by country    -->
+    <string name="please_select_your_city">Please, select your city:</string>
+
     <!--    Permissions    -->
     <string name="permission_rationale_location_title">Location permission</string>
     <string name="permission_rationale_location_body">Please, consider giving access to your location for better user experience</string>
+
+    <!-- Generic error -->
+    <string name="error_loading_data">Error loading data…</string>
 </resources>

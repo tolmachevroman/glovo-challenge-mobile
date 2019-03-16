@@ -7,4 +7,8 @@
     <color name="polygonFillColor">#22008577</color>
     <color name="informationPanelColor">#33666666</color>
     <color name="informationPanelTextColor">#222222</color>
+
+    <color name="adapterHeaderText">#ffffff</color>
+
+    <color name="adapterItemText">#008577</color>
 </resources>
