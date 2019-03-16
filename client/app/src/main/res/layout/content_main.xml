@@ -11,7 +11,7 @@
         tools:context=".ui.MainActivity">
 
     <TextView
-            android:id="@+id/cityInformationTextView"
+            android:id="@+id/cityDetailsTextView"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:padding="12dp"
@@ -29,7 +29,7 @@
             android:name="com.google.android.gms.maps.SupportMapFragment"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            app:layout_constraintBottom_toTopOf="@+id/cityInformationTextView"
+            app:layout_constraintBottom_toTopOf="@+id/cityDetailsTextView"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />

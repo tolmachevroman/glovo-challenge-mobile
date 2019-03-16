@@ -2,7 +2,7 @@
     <string name="app_name">Glovo Test</string>
 
     <!--    City information    -->
-    <string name="city_information">%s, %s, timezone: %s, language code: %s, currency: %s</string>
+    <string name="city_details">%s, %s, timezone: %s, language code: %s, currency: %s</string>
 
     <!--    Cities by country    -->
     <string name="please_select_your_city">Please, select your city:</string>
