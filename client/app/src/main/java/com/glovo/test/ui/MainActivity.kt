@@ -21,6 +21,9 @@ import android.location.Criteria
 import android.location.LocationManager
 import android.content.Context
 import android.location.Location
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelProviders
+import javax.inject.Inject
 
 
 class MainActivity : AppCompatActivity(), OnMapReadyCallback {
@@ -31,11 +34,18 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private var googleMap: GoogleMap? = null
 
+    private lateinit var mainViewModel: MainViewModel
+
+    @Inject
+    lateinit var viewModelFactory: ViewModelProvider.Factory
+
     override fun onCreate(savedInstanceState: Bundle?) {
         AndroidInjection.inject(this)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
+
+        mainViewModel = ViewModelProviders.of(this, viewModelFactory).get(MainViewModel::class.java)
 
         (supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?)?.also { mapFragment ->
             mapFragment.getMapAsync(this)
