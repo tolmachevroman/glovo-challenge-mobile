@@ -1,28 +1,27 @@
 package com.glovo.test.ui
 
 import android.Manifest
-import android.content.pm.PackageManager
-import android.os.Bundle
-import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
-import com.glovo.test.R
-import com.google.android.gms.maps.GoogleMap
-import com.google.android.gms.maps.OnMapReadyCallback
-import kotlinx.android.synthetic.main.activity_main.*
-import com.google.android.gms.maps.SupportMapFragment
-import com.glovo.test.common.permissions.PermissionUtils
-import dagger.android.AndroidInjection
-import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.android.gms.maps.CameraUpdate
-import com.google.android.gms.maps.model.LatLng
-import android.location.Criteria
-import android.location.LocationManager
 import android.content.Context
+import android.content.pm.PackageManager
+import android.location.Criteria
 import android.location.Location
+import android.location.LocationManager
+import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
+import com.glovo.test.R
+import com.glovo.test.common.permissions.PermissionUtils
+import com.glovo.test.di.interactors.Response
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.OnMapReadyCallback
+import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.LatLng
+import dagger.android.AndroidInjection
+import kotlinx.android.synthetic.main.activity_main.*
 import javax.inject.Inject
 
 
@@ -46,6 +45,36 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         setSupportActionBar(toolbar)
 
         mainViewModel = ViewModelProviders.of(this, viewModelFactory).get(MainViewModel::class.java)
+        mainViewModel.apply {
+
+            citiesResponse.observe(this@MainActivity, Observer { response ->
+                when (response.status) {
+                    Response.Status.SUCCESS -> {
+                        println("Successfully got cities: ${response.data}")
+                    }
+                    Response.Status.ERROR -> {
+
+                    }
+                    Response.Status.LOADING -> {
+
+                    }
+                }
+            })
+
+            countriesResponse.observe(this@MainActivity, Observer { response ->
+                when (response.status) {
+                    Response.Status.SUCCESS -> {
+                        println("Successfully got countries: ${response.data}")
+                    }
+                    Response.Status.ERROR -> {
+
+                    }
+                    Response.Status.LOADING -> {
+
+                    }
+                }
+            })
+        }
 
         (supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?)?.also { mapFragment ->
             mapFragment.getMapAsync(this)
@@ -87,6 +116,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             // Access to the location has been granted to the app.
             googleMap?.isMyLocationEnabled = true
 
+            mainViewModel.getCities()
 
             val locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
             val criteria = Criteria()
