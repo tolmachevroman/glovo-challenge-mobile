@@ -1,4 +1,4 @@
-package com.glovo.test.di.interactors
+package com.glovo.test.di.api
 
 import com.glovo.test.data.models.City
 import com.glovo.test.data.models.Country

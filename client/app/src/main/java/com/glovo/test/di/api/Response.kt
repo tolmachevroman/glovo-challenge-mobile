@@ -1,4 +1,4 @@
-package com.glovo.test.di.interactors
+package com.glovo.test.di.api
 
 
 class Response<out T> constructor(val status: Status, val data: T?, val error: Throwable?) {

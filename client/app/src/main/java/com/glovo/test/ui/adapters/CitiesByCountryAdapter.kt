@@ -1,4 +1,4 @@
-package com.glovo.test.ui
+package com.glovo.test.ui.adapters
 
 import android.view.LayoutInflater
 import android.view.View
@@ -25,10 +25,22 @@ class CitiesByCountryAdapter(private val items: List<AdapterItem>, private val c
         val inflater = LayoutInflater.from(parent.context)
         return when (viewType) {
             TYPE_COUNTRY -> {
-                CountryViewHolder(inflater.inflate(R.layout.item_country, parent, false))
+                CountryViewHolder(
+                    inflater.inflate(
+                        R.layout.item_country,
+                        parent,
+                        false
+                    )
+                )
             }
             else -> {
-                CityViewHolder(inflater.inflate(R.layout.item_city, parent, false), callback)
+                CityViewHolder(
+                    inflater.inflate(
+                        R.layout.item_city,
+                        parent,
+                        false
+                    ), callback
+                )
             }
         }
     }

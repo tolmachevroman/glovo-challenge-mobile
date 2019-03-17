@@ -7,7 +7,7 @@
         android:layout_height="wrap_content"
         android:minHeight="350dp"
         android:background="@android:color/white"
-        tools:context=".ui.SelectCityFragment">
+        tools:context=".ui.fragments.SelectCityFragment">
 
     <ProgressBar
             android:id="@+id/progressBar"

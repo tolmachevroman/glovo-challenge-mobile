@@ -2,7 +2,7 @@ package com.glovo.test.di.modules
 
 import android.app.Application
 import com.glovo.test.BuildConfig
-import com.glovo.test.di.interactors.WebService
+import com.glovo.test.di.api.WebService
 import dagger.Module
 import dagger.Provides
 import okhttp3.Cache

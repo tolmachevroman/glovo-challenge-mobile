@@ -1,12 +1,13 @@
-package com.glovo.test.ui
+package com.glovo.test.ui.viewmodels
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.glovo.test.data.repositories.CitiesRepository
 import com.glovo.test.data.repositories.CountriesRepository
-import com.glovo.test.di.interactors.Response
+import com.glovo.test.di.api.Response
 import com.glovo.test.di.modules.Callback
 import com.glovo.test.di.modules.IoThreads
+import com.glovo.test.ui.adapters.CitiesByCountryAdapter
 import io.reactivex.Scheduler
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.addTo
@@ -23,8 +24,14 @@ class SelectCityViewModel @Inject constructor(
 
     private val disposable: CompositeDisposable = CompositeDisposable()
 
+    /**
+     * Observable of adapter's aux AdapterItem list
+     */
     val citiesGroupedByCountriesResponse: MutableLiveData<Response<List<CitiesByCountryAdapter.AdapterItem>>> = MutableLiveData()
 
+    /**
+     * Retrieves cities and countries and merges them in a grouped list
+     */
     fun getCitiesGroupedByCountries() {
         citiesGroupedByCountriesResponse.value = Response.loading(null)
         citiesRepository.getCities()
@@ -48,5 +55,9 @@ class SelectCityViewModel @Inject constructor(
             }, onError = {
                 citiesGroupedByCountriesResponse.value = Response.error(data = null, error = it)
             }).addTo(disposable)
+    }
+
+    override fun onCleared() {
+        disposable.clear()
     }
 }

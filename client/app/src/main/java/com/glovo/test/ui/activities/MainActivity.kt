@@ -1,7 +1,6 @@
-package com.glovo.test.ui
+package com.glovo.test.ui.activities
 
 import android.Manifest
-import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager
 import android.location.Criteria
@@ -11,31 +10,31 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import com.glovo.test.R
 import com.glovo.test.common.permissions.PermissionUtils
 import com.glovo.test.common.rx.ResponseObserver
 import com.glovo.test.data.models.City
-import com.glovo.test.di.interactors.Response
+import com.glovo.test.ui.fragments.SelectCityFragment
+import com.glovo.test.ui.viewmodels.MainViewModel
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.LatLngBounds
-import com.google.android.gms.maps.model.PolygonOptions
+import com.google.android.gms.maps.model.*
 import dagger.android.AndroidInjection
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
 import javax.inject.Inject
 
 
-class MainActivity : AppCompatActivity(), OnMapReadyCallback {
+class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnCameraMoveListener,
+    GoogleMap.OnMarkerClickListener, GoogleMap.OnMyLocationButtonClickListener {
 
     companion object {
         const val MY_LOCATION_REQUEST_CODE = 101
@@ -46,6 +45,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     private var googleMap: GoogleMap? = null
+    private var inMarkersMode: Boolean = false
 
     private lateinit var mainViewModel: MainViewModel
 
@@ -62,23 +62,59 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         mainViewModel.apply {
 
             /**
-             * Observes City details (currency, language code...) request
+             * Observes city details (currency, language code...) request
              */
             cityDetailsByCodeResponse.observe(this@MainActivity, ResponseObserver(this@MainActivity.localClassName,
                 onSuccess = { city ->
                     showCityDetails(city)
+                },
+                onError = {
+                    showErrorToast()
+                },
+                showLoading = {
+                    showLoading()
+                },
+                hideLoading = {
+                    hideLoading()
                 }
             ))
 
             /**
-             * Observes decoded list of working areas and draws them on map
+             * Observes decoded list of working areas and draws them on the map
              */
-            workingAreasDecodedResponse.observe(
-                this@MainActivity, ResponseObserver(this@MainActivity.localClassName,
-                    onSuccess = { workingAreasDecoded ->
-                        drawWorkingAreaDecoded(workingAreasDecoded)
-                    })
-            )
+            workingAreasDecodedResponse.observe(this@MainActivity, ResponseObserver(this@MainActivity.localClassName,
+                onSuccess = { workingAreasDecoded ->
+                    drawWorkingAreaDecoded(workingAreasDecoded)
+                },
+                onError = {
+                    showErrorToast()
+                },
+                showLoading = {
+                    showLoading()
+                },
+                hideLoading = {
+                    hideLoading()
+                }
+            ))
+
+            /**
+             * Observes list of city markers and draws them on the map
+             */
+            cityMarkersResponse.observe(this@MainActivity, ResponseObserver(this@MainActivity.localClassName,
+                onSuccess = { cityMarkers ->
+                    showCityMarkers(cityMarkers)
+                    hideCityDetails()
+                },
+                onError = {
+                    showErrorToast()
+                },
+                showLoading = {
+                    showLoading()
+                },
+                hideLoading = {
+                    hideLoading()
+                }
+            ))
         }
 
         (supportFragmentManager.findFragmentById(R.id.mapFragment) as SupportMapFragment?)?.also { mapFragment ->
@@ -100,7 +136,34 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
     override fun onMapReady(map: GoogleMap?) {
         googleMap = map
+        googleMap?.setOnCameraMoveListener(this)
+        googleMap?.setOnMarkerClickListener(this)
+        googleMap?.setOnMyLocationButtonClickListener(this)
         enableMyLocation()
+    }
+
+    override fun onCameraMove() {
+        googleMap?.cameraPosition?.also { cameraPosition ->
+            if (cameraPosition.zoom < 7.5 && !inMarkersMode) {
+                inMarkersMode = true
+                mainViewModel.getCityMarkers()
+            } else if (cameraPosition.zoom >= 7.5) {
+                inMarkersMode = false
+            }
+        }
+    }
+
+    override fun onMyLocationButtonClick(): Boolean {
+        enableMyLocation()
+        return true
+    }
+
+    override fun onMarkerClick(marker: Marker?): Boolean {
+        marker?.snippet?.also { cityCode ->
+            mainViewModel.getCityByCode(cityCode, decodeArea = true)
+            return true
+        }
+        return false
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
@@ -123,7 +186,8 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             != PackageManager.PERMISSION_GRANTED
         ) {
             // Permission to access the location is missing.
-            PermissionUtils.requestPermission(this, MY_LOCATION_REQUEST_CODE, Manifest.permission.ACCESS_FINE_LOCATION)
+            PermissionUtils.requestPermission(this,
+                MY_LOCATION_REQUEST_CODE, Manifest.permission.ACCESS_FINE_LOCATION)
         } else if (googleMap != null) {
             // Access to the location has been granted to the app.
             googleMap?.isMyLocationEnabled = true
@@ -156,6 +220,10 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         googleMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(coordinate, 13f))
     }
 
+    private fun zoomToBounds(bounds: LatLngBounds) {
+        googleMap?.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, 40))
+    }
+
     /**
      * Draw Polygons based on decoded points from City working area, find the center of the whole
      * region and zoom to the center coordinate
@@ -181,9 +249,15 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
         val bounds: LatLngBounds = builder.build()
 
-        // zoom to the center
-        bounds.center.also {
-            zoomToCoordinate(it)
+        // zoom to fit the working area
+        zoomToBounds(bounds)
+    }
+
+    private fun showCityMarkers(cityMarkers: List<MainViewModel.CityMarker>) {
+        googleMap?.clear()
+
+        cityMarkers.forEach { cityMarker ->
+            googleMap?.addMarker(MarkerOptions().position(cityMarker.center).snippet(cityMarker.code))
         }
     }
 
@@ -199,9 +273,25 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         )
     }
 
+    private fun hideCityDetails() {
+        cityDetailsTextView.visibility = View.GONE
+    }
+
     private fun showSelectCityFragment() {
         val selectCityFragment = SelectCityFragment()
         selectCityFragment.show(supportFragmentManager, "SelectCityFragment")
+    }
+
+    private fun showErrorToast() {
+        Toast.makeText(this, R.string.error_loading_data, Toast.LENGTH_LONG).show()
+    }
+
+    private fun showLoading() {
+        progressBar.visibility = View.VISIBLE
+    }
+
+    private fun hideLoading() {
+        progressBar.visibility = View.GONE
     }
 
     /**

@@ -3,13 +3,10 @@ package com.glovo.test.di.modules
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.glovo.test.di.ViewModelKey
-import com.glovo.test.ui.MainViewModel
-import com.glovo.test.ui.SelectCityFragment
-import com.glovo.test.ui.SelectCityViewModel
+import com.glovo.test.ui.viewmodels.MainViewModel
+import com.glovo.test.ui.viewmodels.SelectCityViewModel
 import dagger.Binds
 import dagger.Module
-import dagger.android.ContributesAndroidInjector
-import dagger.multibindings.ClassKey
 import dagger.multibindings.IntoMap
 
 @Module

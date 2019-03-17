@@ -1,8 +1,7 @@
 package com.glovo.test.data.repositories
 
 import com.glovo.test.data.models.City
-import com.glovo.test.di.interactors.WebService
-import io.reactivex.Observable
+import com.glovo.test.di.api.WebService
 import io.reactivex.Single
 import javax.inject.Inject
 

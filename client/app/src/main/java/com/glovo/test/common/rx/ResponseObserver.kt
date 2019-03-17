@@ -2,7 +2,7 @@ package com.glovo.test.common.rx
 
 import android.util.Log
 import androidx.lifecycle.Observer
-import com.glovo.test.di.interactors.Response
+import com.glovo.test.di.api.Response
 
 class ResponseObserver<T>(
     private val tag: String,

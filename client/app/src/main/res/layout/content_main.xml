@@ -8,7 +8,7 @@
         android:background="@color/informationPanelColor"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
         tools:showIn="@layout/activity_main"
-        tools:context=".ui.MainActivity">
+        tools:context=".ui.activities.MainActivity">
 
     <TextView
             android:id="@+id/cityDetailsTextView"
@@ -33,5 +33,18 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
+
+    <ProgressBar
+            android:id="@+id/progressBar"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:indeterminateOnly="true"
+            android:visibility="gone"
+            android:indeterminateTint="@color/colorPrimary"
+            tools:visibility="visible"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

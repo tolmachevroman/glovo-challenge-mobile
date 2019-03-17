@@ -1,4 +1,4 @@
-package com.glovo.test.ui
+package com.glovo.test.ui.fragments
 
 import android.content.Context
 import android.os.Bundle
@@ -11,7 +11,11 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.DividerItemDecoration
 import com.glovo.test.R
-import com.glovo.test.di.interactors.Response
+import com.glovo.test.common.rx.ResponseObserver
+import com.glovo.test.di.api.Response
+import com.glovo.test.ui.activities.MainActivity
+import com.glovo.test.ui.adapters.CitiesByCountryAdapter
+import com.glovo.test.ui.viewmodels.SelectCityViewModel
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import dagger.android.support.AndroidSupportInjection
 import kotlinx.android.synthetic.main.fragment_select_city.*
@@ -35,21 +39,24 @@ class SelectCityFragment : BottomSheetDialogFragment() {
         selectCityViewModel = ViewModelProviders.of(this, viewModelFactory).get(SelectCityViewModel::class.java)
         selectCityViewModel.apply {
 
-            citiesGroupedByCountriesResponse.observe(this@SelectCityFragment, Observer { response ->
-                when (response.status) {
-                    Response.Status.SUCCESS -> {
-                        hideLoading()
-                        response.data?.also { showItems(it) }
-                    }
-                    Response.Status.ERROR -> {
-                        hideLoading()
-                        Toast.makeText(context, R.string.error_loading_data, Toast.LENGTH_LONG).show()
-                    }
-                    Response.Status.LOADING -> {
+            /**
+             * Observes list of adapter items
+             */
+            citiesGroupedByCountriesResponse.observe(this@SelectCityFragment,
+                ResponseObserver(this@SelectCityFragment.javaClass.name,
+                    onSuccess = { adapterItems ->
+                        showItems(adapterItems)
+                    },
+                    onError = {
+                        showErrorToast()
+                    },
+                    showLoading = {
                         showLoading()
+                    },
+                    hideLoading = {
+                        hideLoading()
                     }
-                }
-            })
+                ))
         }
     }
 
@@ -70,6 +77,10 @@ class SelectCityFragment : BottomSheetDialogFragment() {
         }
         citiesRecyclerView.addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
         citiesRecyclerView.adapter = adapter
+    }
+
+    private fun showErrorToast() {
+        Toast.makeText(context, R.string.error_loading_data, Toast.LENGTH_LONG).show()
     }
 
     private fun showLoading() {

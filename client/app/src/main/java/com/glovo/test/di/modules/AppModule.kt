@@ -4,7 +4,7 @@ import android.app.Application
 import android.content.Context
 import com.glovo.test.data.repositories.CitiesRepository
 import com.glovo.test.data.repositories.CountriesRepository
-import com.glovo.test.di.interactors.WebService
+import com.glovo.test.di.api.WebService
 import dagger.Module
 import dagger.Provides
 import javax.inject.Singleton
