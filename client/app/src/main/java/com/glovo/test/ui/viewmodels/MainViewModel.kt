@@ -55,7 +55,7 @@ class MainViewModel @Inject constructor(
         workingAreasDecodedResponse.value = Response.loading(data = null)
         citiesRepository.getCities()
             .subscribeOn(ioScheduler)
-            .observeOn(ioScheduler)
+            .observeOn(callbackScheduler)
             .subscribeBy(onSuccess = { cities ->
 
                 Observable.fromIterable(cities)

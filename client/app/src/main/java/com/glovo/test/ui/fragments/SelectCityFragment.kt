@@ -2,6 +2,7 @@ package com.glovo.test.ui.fragments
 
 import android.content.Context
 import android.os.Bundle
+import android.os.Handler
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -49,6 +50,9 @@ class SelectCityFragment : BottomSheetDialogFragment() {
                     },
                     onError = {
                         showErrorToast()
+                        Handler().postDelayed({
+                            dismissAllowingStateLoss()
+                        }, 1000)
                     },
                     showLoading = {
                         showLoading()
