@@ -7,13 +7,13 @@ data class City(
     val name: String,
     @field:Json(name = "country_code")
     val countryCode: String,
-    val currency: String?,
-    val enabled: Boolean?,
-    val busy: Boolean?,
+    val currency: String? = null,
+    val enabled: Boolean? = null,
+    val busy: Boolean? = null,
     @field:Json(name = "time_zone")
-    val timeZone: String?,
+    val timeZone: String? = null,
     @field:Json(name = "language_code")
-    val languageCode: String?,
+    val languageCode: String? = null,
     @field:Json(name = "working_area")
     val workingArea: List<String>
 )

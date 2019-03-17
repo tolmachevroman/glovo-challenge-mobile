@@ -2,6 +2,8 @@ package com.glovo.test.ui.viewmodels
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.glovo.test.data.models.City
+import com.glovo.test.data.models.Country
 import com.glovo.test.data.repositories.CitiesRepository
 import com.glovo.test.data.repositories.CountriesRepository
 import com.glovo.test.di.api.Response
@@ -27,7 +29,8 @@ class SelectCityViewModel @Inject constructor(
     /**
      * Observable of adapter's aux AdapterItem list
      */
-    val citiesGroupedByCountriesResponse: MutableLiveData<Response<List<CitiesByCountryAdapter.AdapterItem>>> = MutableLiveData()
+    val citiesGroupedByCountriesResponse: MutableLiveData<Response<List<CitiesByCountryAdapter.AdapterItem>>> =
+        MutableLiveData()
 
     /**
      * Retrieves cities and countries and merges them in a grouped list
@@ -36,25 +39,30 @@ class SelectCityViewModel @Inject constructor(
         citiesGroupedByCountriesResponse.value = Response.loading(null)
         citiesRepository.getCities()
             .zipWith(countriesRepository.getCountries())
+            .map { (cities, countries) ->
+                buildAdapterItemsList(cities, countries)
+            }
             .subscribeOn(ioScheduler)
             .observeOn(callbackScheduler)
-            .subscribeBy(onSuccess = { (cities, countries) ->
-
-                val adapterItems = mutableListOf<CitiesByCountryAdapter.AdapterItem>()
-
-                countries.forEach { country ->
-                    adapterItems.add(CitiesByCountryAdapter.CountryItem(country.name))
-                    cities.filter { city ->
-                        city.countryCode == country.code
-                    }.forEach { city ->
-                        adapterItems.add(CitiesByCountryAdapter.CityItem(city.name, city.code))
-                    }
-                }
-
+            .subscribeBy(onSuccess = { adapterItems ->
                 citiesGroupedByCountriesResponse.value = Response.success(adapterItems)
             }, onError = {
                 citiesGroupedByCountriesResponse.value = Response.error(data = null, error = it)
             }).addTo(disposable)
+    }
+
+    fun buildAdapterItemsList(cities: List<City>, countries: List<Country>): List<CitiesByCountryAdapter.AdapterItem> {
+        val adapterItems = mutableListOf<CitiesByCountryAdapter.AdapterItem>()
+
+        countries.forEach { country ->
+            adapterItems.add(CitiesByCountryAdapter.CountryItem(country.name))
+            cities.filter { city ->
+                city.countryCode == country.code
+            }.forEach { city ->
+                adapterItems.add(CitiesByCountryAdapter.CityItem(city.name, city.code))
+            }
+        }
+        return adapterItems
     }
 
     override fun onCleared() {
