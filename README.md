@@ -10,6 +10,8 @@
 
 - I used my local machine's network address to test from device directly (be sure to [update url in build.gradle](https://github.com/tolmachevroman/glovo-challenge-mobile/blob/master/client/app/build.gradle#L19)  therefore)
 
+- Although not specified by the task, I added **Select city** menu, so that user could always browse through cities
+
 #### Architecture
 
 - I like MVVM + Kotlin + Dagger 2 stack, also found it easy to combine `RxJava` with `LiveData`  
